@@ -11,3 +11,18 @@ To see some example code using this library:
 
 https://github.com/jorenretel/grakn-pytorch-example
 
+
+```
+                                                                                     You are here
+                                                                                          +
+                                                                                          |
+                                                                                          |
+                                                                                          v
+                                                                         +--------------------------------+
++------------------------+           +-------------------+               | +----------------------------+ |
+|                        |           |                   |               | |                            | |
+| Grakn Knowledge Graph  |   +---->  | grakn-dataloading |    +------->  | |  Deep Learning Framework X | |
+|                        |           |                   |               | |                            | |
++------------------------+           +-------------------+               | +----------------------------+ |
+                                                                         +--------------------------------+
+```
