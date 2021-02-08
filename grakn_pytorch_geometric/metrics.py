@@ -15,7 +15,8 @@ def existence_accuracy(pred, target, ignore_index=None):
 
 
 def fraction_solved(pred, target, batch, ignore_index=None):
-    """Fraction of entire
+    """Fraction of graphs for which all nodes are
+       classified correctly.
     """
     splitter = BatchSplitter(batch)
     n_solved = 0
