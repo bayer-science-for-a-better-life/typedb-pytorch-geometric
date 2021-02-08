@@ -37,7 +37,7 @@ class Embedder(nn.Module):
 
         super(Embedder, self).__init__()
 
-        self._out_features = (
+        self.n_out_features = (
             bool(encode_preexistence) + type_embedding_dim + attr_embedding_dim
         )
 
@@ -68,7 +68,7 @@ class Embedder(nn.Module):
         return torch.cat(embedding, dim=-1)
 
     def extra_repr(self) -> str:
-        return "out_features={}".format(self._out_features)
+        return "out_features={}".format(self.n_out_features)
 
 
 class TypewiseEncoder(nn.Module):

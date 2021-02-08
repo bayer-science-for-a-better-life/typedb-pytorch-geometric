@@ -12,9 +12,111 @@ from grakn_pytorch_geometric.models.embedding import Embedder
 
 class KGCN(torch.nn.Module):
     """
-    Not the real GKCN yet. Will fix create model with
-    supersteps in a following commit.
-    This quickly overfits due too large number of weights.
+    Model like KGCN in tensorflow with graphnets.
+    Differences still to be resolved: loss only calculated
+    on predictions in last processing step. Maybe missing
+    a few layer norms.
+    """
+
+    def __init__(
+        self,
+        node_types=None,
+        edge_types=None,
+        categorical_attributes=None,
+        continuous_attributes=None,
+        edge_output_size=3,
+        node_output_size=3,
+        latent_size=16,
+    ):
+        super(KGCN, self).__init__()
+
+        node_types = node_types or []
+        edge_types = edge_types or []
+        categorical_attributes = categorical_attributes or []
+        continuous_attributes = continuous_attributes or []
+
+        node_embedder = Embedder(
+            types=node_types,
+            type_embedding_dim=5,
+            attr_embedding_dim=6,
+            categorical_attributes=categorical_attributes,
+            continuous_attributes=continuous_attributes,
+        )
+
+        edge_embedder = Embedder(types=edge_types, type_embedding_dim=5)
+
+        self.node_encoder = nn.Sequential(
+            node_embedder,
+            nn.Linear(node_embedder.n_out_features, latent_size),
+            nn.ReLU(),
+            nn.Linear(latent_size, latent_size),
+            nn.ReLU(),
+        )
+
+        self.edge_encoder = nn.Sequential(
+            edge_embedder,
+            nn.Linear(edge_embedder.n_out_features, latent_size),
+            nn.ReLU(),
+            nn.Linear(latent_size, latent_size),
+            nn.ReLU(),
+        )
+
+        self.conv = GraknConv(
+            nn_node=nn.Sequential(
+                nn.Linear(3 * latent_size, latent_size),
+                nn.ReLU(),
+                nn.Linear(latent_size, latent_size),
+                nn.ReLU(),
+            ),
+            nn_edge=nn.Sequential(
+                nn.Linear(6 * latent_size, latent_size),
+                nn.ReLU(),
+                nn.Linear(latent_size, latent_size),
+                nn.ReLU(),
+            ),
+        )
+
+        self.node_decoder = nn.Sequential(
+            nn.Linear(latent_size, latent_size),
+            nn.ReLU(),
+            nn.Linear(latent_size, latent_size),
+            nn.ReLU(),
+            nn.Linear(latent_size, node_output_size),
+        )
+
+        self.edge_decoder = nn.Sequential(
+            nn.Linear(latent_size, latent_size),
+            nn.ReLU(),
+            nn.Linear(latent_size, latent_size),
+            nn.ReLU(),
+            nn.Linear(latent_size, edge_output_size),
+        )
+
+    def forward(self, data, num_processing_steps=5):
+        x_node, x_edge, edge_index, = (
+            data.x,
+            data.edge_attr,
+            data.edge_index,
+        )
+
+        x_node = self.node_encoder(x_node)
+        x_edge = self.edge_encoder(x_edge)
+        x_node_0 = x_node
+        x_edge_0 = x_edge
+        for _ in range(num_processing_steps):
+            x_node, x_edge = self.conv(
+                torch.cat([x_node_0, x_node], dim=1),
+                edge_index,
+                torch.cat([x_edge_0, x_edge], dim=1),
+            )
+            pred_node = self.node_decoder(x_node)
+            pred_edge = self.edge_decoder(x_edge)
+        return pred_node, pred_edge
+
+
+class KGCNNoLoopBack(torch.nn.Module):
+    """
+    A model with 3 graph convolution layers.
     """
 
     def __init__(
