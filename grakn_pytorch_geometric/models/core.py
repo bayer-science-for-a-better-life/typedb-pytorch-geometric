@@ -27,6 +27,7 @@ class KGCN(torch.nn.Module):
         edge_output_size=3,
         node_output_size=3,
         latent_size=16,
+        num_layers=2,
     ):
         super(KGCN, self).__init__()
 
@@ -47,50 +48,31 @@ class KGCN(torch.nn.Module):
 
         self.node_encoder = nn.Sequential(
             node_embedder,
-            nn.Linear(node_embedder.n_out_features, latent_size),
-            nn.ReLU(),
-            nn.Linear(latent_size, latent_size),
-            nn.ReLU(),
+            mlp(
+                [node_embedder.n_out_features] + [latent_size] * num_layers,
+                activate_final=True,
+            ),
         )
 
         self.edge_encoder = nn.Sequential(
             edge_embedder,
-            nn.Linear(edge_embedder.n_out_features, latent_size),
-            nn.ReLU(),
-            nn.Linear(latent_size, latent_size),
-            nn.ReLU(),
+            mlp(
+                [edge_embedder.n_out_features] + [latent_size] * num_layers,
+                activate_final=True,
+            ),
         )
 
         self.conv = GraknConv(
-            nn_node=nn.Sequential(
-                nn.Linear(3 * latent_size, latent_size),
-                nn.ReLU(),
-                nn.Linear(latent_size, latent_size),
-                nn.ReLU(),
+            nn_node=mlp(
+                [3 * latent_size] + [latent_size] * num_layers, activate_final=True
             ),
-            nn_edge=nn.Sequential(
-                nn.Linear(6 * latent_size, latent_size),
-                nn.ReLU(),
-                nn.Linear(latent_size, latent_size),
-                nn.ReLU(),
+            nn_edge=mlp(
+                [6 * latent_size] + [latent_size] * num_layers, activate_final=True
             ),
         )
 
-        self.node_decoder = nn.Sequential(
-            nn.Linear(latent_size, latent_size),
-            nn.ReLU(),
-            nn.Linear(latent_size, latent_size),
-            nn.ReLU(),
-            nn.Linear(latent_size, node_output_size),
-        )
-
-        self.edge_decoder = nn.Sequential(
-            nn.Linear(latent_size, latent_size),
-            nn.ReLU(),
-            nn.Linear(latent_size, latent_size),
-            nn.ReLU(),
-            nn.Linear(latent_size, edge_output_size),
-        )
+        self.node_decoder = mlp([latent_size] * (num_layers + 1) + [node_output_size])
+        self.edge_decoder = mlp([latent_size] * (num_layers + 1) + [edge_output_size])
 
     def forward(self, data, num_processing_steps=5):
         x_node, x_edge, edge_index, = (
@@ -231,19 +213,12 @@ class GraknConv(MessagePassing):
         self,
         nn_node: Callable,
         nn_edge: Callable,
-        eps: float = 0.0,
-        train_eps: bool = False,
         **kwargs
     ):
         kwargs.setdefault("aggr", "add")
         super(GraknConv, self).__init__(**kwargs)
         self.nn_node = nn_node
         self.nn_edge = nn_edge
-        self.initial_eps = eps
-        if train_eps:
-            self.eps = torch.nn.Parameter(torch.Tensor([eps]))
-        else:
-            self.register_buffer("eps", torch.Tensor([eps]))
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -274,3 +249,13 @@ class GraknConv(MessagePassing):
     def message(self, x_j: Tensor, edge_attr: Tensor) -> Tensor:
         concatenated = torch.cat([x_j, edge_attr], dim=-1)
         return torch.cat([x_j, edge_attr], dim=-1)
+
+
+def mlp(layer_sizes, activation=nn.ReLU, activate_final=False):
+    transformations = []
+    for in_size, out_size in zip(layer_sizes, layer_sizes[1:]):
+        transformations.append(nn.Linear(in_size, out_size))
+        transformations.append(activation())
+    if not activate_final:
+        transformations = transformations[:-1]
+    return nn.Sequential(*transformations)
