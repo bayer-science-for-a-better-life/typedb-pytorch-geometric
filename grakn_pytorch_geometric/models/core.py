@@ -223,7 +223,6 @@ class GraknConv(MessagePassing):
 
     def reset_parameters(self):
         reset(self.nn_node)
-        self.eps.data.fill_(self.initial_eps)
 
     def forward(
         self,
