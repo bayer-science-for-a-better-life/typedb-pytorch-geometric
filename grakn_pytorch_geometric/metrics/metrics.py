@@ -1,11 +1,16 @@
 import torch
 
 
-def correct(pred, target, ignore_index=None):
+def ignore_class(pred, target, ignore_index=None):
     if ignore_index is not None:
         mask = target != ignore_index
         pred = pred[mask]
         target = target[mask]
+    return pred, target
+
+
+def correct(pred, target, ignore_index=None):
+    pred, target = ignore_class(pred, target, ignore_index)
     predicted_index = torch.argmax(pred, dim=-1)
     return predicted_index == target
 
@@ -16,7 +21,7 @@ def existence_accuracy(pred, target, ignore_index=None):
 
 def fraction_solved(pred, target, batch, ignore_index=None):
     """Fraction of graphs for which all nodes are
-       classified correctly.
+    classified correctly.
     """
     splitter = BatchSplitter(batch)
     n_solved = 0
@@ -25,10 +30,11 @@ def fraction_solved(pred, target, batch, ignore_index=None):
     return n_solved / splitter.n_graphs
 
 
-class BatchSplitter():
+class BatchSplitter:
     """Splitting up tensors by pytorch geometric batch indeces.
-       Only works for nodes.
+    Only works for nodes.
     """
+
     def __init__(self, batch):
         self.masks = [batch == i for i in batch.unique()]
         self.n_graphs = len(self.masks)

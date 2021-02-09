@@ -209,12 +209,7 @@ class GraknConv(MessagePassing):
             :class:`torch_geometric.nn.conv.MessagePassing`.
     """
 
-    def __init__(
-        self,
-        nn_node: Callable,
-        nn_edge: Callable,
-        **kwargs
-    ):
+    def __init__(self, nn_node: Callable, nn_edge: Callable, **kwargs):
         kwargs.setdefault("aggr", "add")
         super(GraknConv, self).__init__(**kwargs)
         self.nn_node = nn_node
