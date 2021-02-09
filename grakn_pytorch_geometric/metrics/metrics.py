@@ -23,7 +23,9 @@ def fraction_solved(pred, target, batch, ignore_index=None):
     """Fraction of graphs for which all nodes are
     classified correctly.
     """
-    n_solved, n_total = n_graphs_solved(pred, target, batch, ignore_index, return_n_total=True)
+    n_solved, n_total = n_graphs_solved(
+        pred, target, batch, ignore_index, return_n_total=True
+    )
     return n_solved / n_total
 
 

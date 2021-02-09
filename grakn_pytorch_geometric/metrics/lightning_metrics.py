@@ -11,6 +11,7 @@ class Accuracy(classification.Accuracy):
     Accuracy, with ignore_index to be able to
     ignore all samples of a given class.
     """
+
     def __init__(
         self,
         threshold: float = 0.5,
@@ -49,8 +50,7 @@ class FractionSolved(Metric):
         dist_sync_on_step: bool = False,
         process_group: Optional[Any] = None,
         dist_sync_fn: Callable = None,
-        ignore_index: int = None
-
+        ignore_index: int = None,
     ):
         super().__init__(
             compute_on_step=compute_on_step,
@@ -93,5 +93,3 @@ class FractionSolved(Metric):
         Computes fraction of solved graphs over state.
         """
         return self.correct.float() / self.total
-
-
