@@ -23,11 +23,21 @@ def fraction_solved(pred, target, batch, ignore_index=None):
     """Fraction of graphs for which all nodes are
     classified correctly.
     """
+    n_solved, n_total = n_graphs_solved(pred, target, batch, ignore_index, return_n_total=True)
+    return n_solved / n_total
+
+
+def n_graphs_solved(pred, target, batch, ignore_index=None, return_n_total=False):
+    """Number of graphs for which all nodes are
+    classified correctly.
+    """
     splitter = BatchSplitter(batch)
     n_solved = 0
     for pred_batch, target_batch in zip(splitter(pred), splitter(target)):
         n_solved += correct(pred_batch, target_batch, ignore_index).all()
-    return n_solved / splitter.n_graphs
+    if return_n_total:
+        return n_solved, splitter.n_graphs
+    return n_solved
 
 
 class BatchSplitter:
