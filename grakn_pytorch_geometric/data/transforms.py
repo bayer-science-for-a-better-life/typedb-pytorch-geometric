@@ -71,7 +71,7 @@ class StandardKGCNNetworkxTransform:
 
         for data in multidigraph_edge_data_iterator(graph):
             features = create_feature_vector(data)
-            target = data["solution"]
+            target = data[self.target_name]
             data.clear()
             data["edge_attr"] = features
             data["y_edge"] = target
