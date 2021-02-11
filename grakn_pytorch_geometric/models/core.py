@@ -74,7 +74,7 @@ class KGCN(torch.nn.Module):
         self.node_decoder = mlp([latent_size] * (num_layers + 1) + [node_output_size])
         self.edge_decoder = mlp([latent_size] * (num_layers + 1) + [edge_output_size])
 
-    def forward(self, data, num_processing_steps=5):
+    def forward(self, data, steps=5, return_all_steps=False):
         x_node, x_edge, edge_index, = (
             data.x,
             data.edge_attr,
@@ -85,7 +85,9 @@ class KGCN(torch.nn.Module):
         x_edge = self.edge_encoder(x_edge)
         x_node_0 = x_node
         x_edge_0 = x_edge
-        for _ in range(num_processing_steps):
+        node_predictions = []
+        edge_predictions = []
+        for _ in range(steps):
             x_node, x_edge = self.conv(
                 torch.cat([x_node_0, x_node], dim=1),
                 edge_index,
@@ -93,6 +95,12 @@ class KGCN(torch.nn.Module):
             )
             pred_node = self.node_decoder(x_node)
             pred_edge = self.edge_decoder(x_edge)
+            node_predictions.append(pred_node)
+            edge_predictions.append(pred_edge)
+        if return_all_steps:
+            return torch.stack(node_predictions, dim=-1), torch.stack(
+                edge_predictions, dim=-1
+            )
         return pred_node, pred_edge
 
 

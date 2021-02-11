@@ -8,7 +8,6 @@ from kglib.kgcn.pipeline.encode import encode_types, encode_values, stack_featur
 from kglib.kgcn.pipeline.utils import duplicate_edges_in_reverse
 
 
-
 class StandardKGCNNetworkxTransform:
     """Transform of the networkx graph as it comes out of Grakn
     to a networkx graph that pytorch geometric likes to ingest.
@@ -28,6 +27,7 @@ class StandardKGCNNetworkxTransform:
     :returns: networkx graph object
 
     """
+
     def __init__(
         self,
         node_types,
@@ -37,7 +37,7 @@ class StandardKGCNNetworkxTransform:
         categorical=None,
         continuous=None,
         duplicate_in_reverse=True,
-        label_attribute="concept"
+        label_attribute="concept",
     ):
         self.node_types = node_types
         self.edge_types = edge_types
@@ -53,7 +53,9 @@ class StandardKGCNNetworkxTransform:
             obfuscate_labels(graph, self.obfuscate)
         # Encode attribute values as number
         graph = encode_values(graph, self.categorical, self.continuous)
-        graph = nx.convert_node_labels_to_integers(graph, label_attribute=self.label_attribute)
+        graph = nx.convert_node_labels_to_integers(
+            graph, label_attribute=self.label_attribute
+        )
         if self.duplicate:
             graph = duplicate_edges_in_reverse(graph)
         # Node or Edge Type as int
