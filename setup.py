@@ -6,7 +6,7 @@ setup(
         "version_scheme": "post-release",
         "write_to": "grakn_pytorch_geometric/_version.py",
     },
-    setup_requires=['setuptools_scm'],
+    setup_requires=["setuptools_scm"],
     packages=[
         "grakn_pytorch_geometric",
         "grakn_pytorch_geometric.data",

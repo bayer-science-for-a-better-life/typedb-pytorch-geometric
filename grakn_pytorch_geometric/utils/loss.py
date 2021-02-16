@@ -15,8 +15,7 @@ class MultiStepLoss(nn.Module):
         self.loss_function = loss_function
 
     def forward(self, pred, target, steps=None):
-        """
-        """
+        """"""
         if steps:
             target = target.unsqueeze(1).repeat(1, steps)
         return self.loss_function(pred, target)

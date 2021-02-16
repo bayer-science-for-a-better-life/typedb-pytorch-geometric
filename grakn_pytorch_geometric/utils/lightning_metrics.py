@@ -1,20 +1,20 @@
 from typing import Any, Callable, Optional
 
 import torch
-from pytorch_lightning.metrics import classification, Metric
+from pytorch_lightning.metrics import Metric
 from pytorch_lightning.metrics.utils import _input_format_classification
 from .metrics import ignore_class, BatchSplitter
 
 
-class Accuracy(classification.Accuracy):
+class IgnoreIndexMetric(Metric):
     """
-    Accuracy, with ignore_index to be able to
-    ignore all samples of a given class.
+    Wrapper for Pytorch Lightning Metric with the
+    option to ignore a class with a specific index.
     """
 
     def __init__(
         self,
-        threshold: float = 0.5,
+        metric: Metric,
         compute_on_step: bool = True,
         dist_sync_on_step: bool = False,
         process_group: Optional[Any] = None,
@@ -26,15 +26,30 @@ class Accuracy(classification.Accuracy):
             dist_sync_on_step=dist_sync_on_step,
             process_group=process_group,
             dist_sync_fn=dist_sync_fn,
-            threshold=threshold,
         )
 
+        self.metric = metric
         self.ignore_index = ignore_index
+        self._child_extra_repr = self.metric.extra_repr()
 
     def update(self, preds: torch.Tensor, target: torch.Tensor):
-        return super().update(
+        return self.metric.update(
             *ignore_class(preds, target, ignore_index=self.ignore_index)
         )
+
+    def compute(self):
+        return self.metric.compute()
+
+    def extra_repr(self) -> str:
+        if self._child_extra_repr:
+            return "{}\nignore_index={}".format(
+                self._child_extra_repr, self.ignore_index
+            )
+        return "ignore_index={}".format(self.ignore_index)
+
+    def __repr__(self):
+        self.metric.extra_repr = self.extra_repr
+        return str(self.metric)
 
 
 class FractionSolved(Metric):
@@ -93,3 +108,6 @@ class FractionSolved(Metric):
         Computes fraction of solved graphs over state.
         """
         return self.correct.float() / self.total
+
+    def extra_repr(self) -> str:
+        return "threshold={}, ignore_index={}".format(self.threshold, self.ignore_index)
