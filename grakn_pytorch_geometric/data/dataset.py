@@ -1,7 +1,8 @@
 import torch
 import networkx as nx
 import torch_geometric
-from grakn_dataloading.networkx import GraknNetworkxDataSet
+
+from kglib.kgcn_data_loader.dataset.grakn_networkx_dataset import GraknNetworkxDataSet
 
 
 class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
@@ -17,8 +18,8 @@ class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
         self,
         example_indices,
         get_query_handles_for_id,
-        keyspace,
-        uri="localhost:48555",
+        database,
+        uri="localhost:1729",
         infer=True,
         transform=None,
         pre_transform=None,
@@ -34,7 +35,7 @@ class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
         self._networkx_dataset = GraknNetworkxDataSet(
             example_indices=example_indices,
             get_query_handles_for_id=get_query_handles_for_id,
-            keyspace=keyspace,
+            database=database,
             uri=uri,
             infer=infer,
             transform=networkx_transform,
