@@ -1,4 +1,4 @@
-"""Pytorch version of kglib/kgcn/models/embedding.py
+"""Pytorch version of kglib/kgcn_tensorflow/models/embedding.py
 
 There was a seperate ThingEmbedder and RoleEmbedder, but looking into it,
 the RoleEmbedder
