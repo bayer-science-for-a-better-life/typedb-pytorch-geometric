@@ -2,7 +2,7 @@ from typing import Any, Callable, Optional
 
 import torch
 from pytorch_lightning.metrics import Metric
-from pytorch_lightning.metrics.utils import _input_format_classification
+from pytorch_lightning.metrics.utils import _input_format_classification_one_hot
 from .metrics import ignore_class, BatchSplitter
 
 
@@ -92,7 +92,7 @@ class FractionSolved(Metric):
         _target = target
         preds, target = ignore_class(preds, target, ignore_index=self.ignore_index)
         batch, _ = ignore_class(batch, _target, ignore_index=self.ignore_index)
-        preds, target = _input_format_classification(preds, target, self.threshold)
+        preds, target = _input_format_classification_one_hot(preds, target, self.threshold)
         assert preds.shape == target.shape
 
         splitter = BatchSplitter(batch)
