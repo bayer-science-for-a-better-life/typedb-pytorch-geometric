@@ -9,7 +9,7 @@ https://github.com/graknlabs/kglib
 
 To see some example code using this library:
 
-https://github.com/jorenretel/grakn-pytorch-example
+https://github.com/bayer-science-for-a-better-life/grakn-pytorch-example
 
 
 ```
