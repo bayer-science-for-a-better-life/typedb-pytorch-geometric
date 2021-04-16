@@ -8,7 +8,7 @@ class Attribute(nn.Module, abc.ABC):
     Abstract base class for Attribute value embedding models
     """
 
-    def __init__(self, attr_embedding_dim, name=None):
+    def __init__(self, attr_embedding_dim: int, name=None):
         super(Attribute, self).__init__()
         self._attr_embedding_dim = attr_embedding_dim
         self._type_name = name
@@ -22,10 +22,19 @@ class Attribute(nn.Module, abc.ABC):
 
 
 class ContinuousAttribute(Attribute):
-    def __init__(self, attr_embedding_dim, name=None):
+    """
+    Continuous attribute. Turn a continuous attribute into a vector.
+    This is done so it can have the same size as categorical
+    embeddings of other nodes.
+
+    Args:
+        attr_embedding_dim (int): size of the embedding.
+    """
+    def __init__(self, attr_embedding_dim: int, name=None):
         super(ContinuousAttribute, self).__init__(attr_embedding_dim, name)
         # for now input is size 1 (when pytorch 1.8 comes out can be made dependent on input)
-        # a three layer MLP is used like in KGCN
+        # a three layer MLP is used like in KGCN. Three layers do maybe not make
+        # too much sense but keeping it like the tensorflow version for now.
         # todo: when pytorch 1.8 comes out, change first Linear to LazyLinear
         self.embedder = nn.Sequential(
             nn.Linear(1, attr_embedding_dim),
@@ -44,7 +53,15 @@ class ContinuousAttribute(Attribute):
 
 
 class CategoricalAttribute(Attribute):
-    def __init__(self, num_categories, attr_embedding_dim, name=None):
+    """
+    Categorical attribute.
+
+    Args:
+        num_categories (int): number of values the attribute can take.
+        attr_embedding_dim (int): size of the embedding.
+    """
+    def __init__(self, num_categories: int, attr_embedding_dim: int, name=None):
+        # todo: add min max scaler? The min/max values are not used now.
         super(CategoricalAttribute, self).__init__(attr_embedding_dim, name)
         self.embedder = nn.Embedding(
             num_embeddings=num_categories, embedding_dim=attr_embedding_dim
@@ -58,7 +75,15 @@ class CategoricalAttribute(Attribute):
 
 
 class BlankAttribute(Attribute):
-    def __init__(self, attr_embedding_dim, name=None):
+    """
+    Creates an attribute embedding with just zeros. This is
+    useful for nodes without attributes to keep the size of
+    their representation vectors the same size as vectors
+
+    Args:
+        attr_embedding_dim (int): size of the embedding.
+    """
+    def __init__(self, attr_embedding_dim: int, name=None):
         super(BlankAttribute, self).__init__(attr_embedding_dim, name)
 
     def forward(self, attribute_value):

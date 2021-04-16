@@ -1,3 +1,4 @@
+from typing import Sequence, Callable
 import torch
 import networkx as nx
 import torch_geometric
@@ -7,31 +8,44 @@ from kglib.kgcn_data_loader.dataset.grakn_networkx_dataset import GraknNetworkxD
 
 class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
     """
-    Pytorch Geometric DataSet:
+    Subclass of Pytorch Geometric DataSet:
     https://pytorch-geometric.readthedocs.io/en/latest/modules/data.html#torch_geometric.data.Dataset
-    Using the more generic GraknNetworkxDataSet but returns Pytorch Geometric Data objects
-    instead of networkx graphs.
+
+    Acts as a connector between the Grakn Database and Pytorch Geometric. Intenally it uses the more
+    generic GraknNetworkxDataSet in kglib but returns Pytorch Geometric Data objects instead of
+    networkx graphs.
+
+    Args:
+        example_indices: sequence of indices that are used for training, validation or test.
+            These indices are handed to get_query_handles_for_id method during datalaoding.
+        get_query_handles_for_id (callable):  function taking an example_index as its input and
+            returns an iterable, each element containing a Graql query, a function to sample the
+            answers, and a QueryGraph object which must be the Grakn graph representation of the
+            query. This tuple is termed a "query_handle".
+        database (str): name of the database.
+        uri (str): uri of the database, exmaple: "localhost:1729".
+        infer (bool): whether to use Grakn reasoning.
+        networkx_transform (callable, optional): transform applied to networkx graph
+            before it becomes a pytorch geometric graph.
+        caching (bool, optional): keep sample graphs fetched from the database in memory.
+        *args: args for torch_geometric.data.dataset.Dataset
+        **kwargs: kwargs for torch_geometric.data.dataset.Dataset
 
     """
 
     def __init__(
         self,
-        example_indices,
-        get_query_handles_for_id,
-        database,
-        uri="localhost:1729",
-        infer=True,
-        transform=None,
-        pre_transform=None,
-        pre_filter=None,
-        networkx_transform=None,
-        caching=False,
+        example_indices: Sequence,
+        get_query_handles_for_id: Callable,
+        database: str,
+        uri: str = "localhost:1729",
+        infer: bool = True,
+        networkx_transform: Callable[[nx.Graph], nx.Graph] = None,
+        caching: bool = False,
+        *args,
+        **kwargs
     ):
-        super(GraknPytorchGeometricDataSet, self).__init__(
-            transform=transform,
-            pre_transform=pre_transform,
-            pre_filter=pre_filter,
-        )
+        super(GraknPytorchGeometricDataSet, self).__init__(*args, **kwargs)
         self._networkx_dataset = GraknNetworkxDataSet(
             example_indices=example_indices,
             get_query_handles_for_id=get_query_handles_for_id,
@@ -59,6 +73,8 @@ class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
 def networkx_to_pytorch_geometric(G):
     r"""Converts a :obj:`networkx.Graph` or :obj:`networkx.DiGraph` to a
     :class:`torch_geometric.data.Data` instance.
+
+    Modified from Pytorch Geometric.
 
     Args:
         G (networkx.Graph or networkx.DiGraph): A networkx graph.

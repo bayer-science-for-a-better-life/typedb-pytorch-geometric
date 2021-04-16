@@ -4,6 +4,7 @@ There was a seperate ThingEmbedder and RoleEmbedder, but looking into it,
 the RoleEmbedder
 """
 
+from typing import Sequence, Mapping
 import torch
 import torch.nn as nn
 from grakn_pytorch_geometric.models.attribute import (
@@ -14,28 +15,33 @@ from grakn_pytorch_geometric.models.attribute import (
 
 
 class Embedder(nn.Module):
+    """
+    Module to embed the 3-vector (preexistence, type, value) from Grakn. Each type
+    has its own embedder to embed the value.
+
+    Args:
+        types: list of node or edge types
+        encode_preexistence: to start each embedding with the existence bit
+        type_embedding_dim: size of the type embedding
+        attr_embedding_dim: size of the attribute embedding
+        categorical_attributes: dict of {"attribute_name": ["catergory_1", "category_2", ...]}
+        continuous_attributes: dict of {"attribute_name": (min_value, max_value)}
+    """
     def __init__(
         self,
-        types,
-        encode_preexistence=True,
-        type_embedding_dim=0,
-        attr_embedding_dim=0,
-        categorical_attributes=None,
-        continuous_attributes=None,
+        types: Sequence,
+        encode_preexistence: bool = True,
+        type_embedding_dim: int = 0,
+        attr_embedding_dim: int = 0,
+        categorical_attributes: Mapping = None,
+        continuous_attributes: Mapping = None,
     ):
-        """
-        Embed the 3-vector (preexistence, type, value) from Grakn. Each type
-        has its own embedder to embed the value.
-
-        :param types: list of node or edge types
-        :param encode_preexistence: to start each embedding with the existence bit
-        :param type_embedding_dim: size of the type embedding
-        :param attr_embedding_dim: size of the attribute embedding
-        :param categorical_attributes: dict of {"attribute_name": ["catergory_1", "category_2", ...]}
-        :param continuous_attributes: dict of {"attribute_name": (min_value, max_value)}
-        """
-
         super(Embedder, self).__init__()
+
+        print("bla")
+        print(types)
+        print(categorical_attributes)
+        print(continuous_attributes)
 
         self.n_out_features = (
             bool(encode_preexistence) + type_embedding_dim + attr_embedding_dim
