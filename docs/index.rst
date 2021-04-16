@@ -7,8 +7,8 @@ Welcome to grakn-pytorch-geometric's documentation!
 ===================================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 4
+   :caption: API:
    :titlesonly:
 
    api/grakn_pytorch_geometric
