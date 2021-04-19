@@ -1,10 +1,11 @@
 """Pytorch version of kglib/kgcn_tensorflow/models/embedding.py
 
-There was a seperate ThingEmbedder and RoleEmbedder, but looking into it,
-the RoleEmbedder
+In the tensorflow version there is a seperate ThingEmbedder and RoleEmbedder, but looking into it,
+the RoleEmbedder is just the same as the ThingEmbedder, but without an value encoding.
 """
 
-from typing import Sequence, Mapping
+from typing import Optional, Tuple, Mapping, Sequence, Hashable
+from numbers import Number
 import torch
 import torch.nn as nn
 from grakn_pytorch_geometric.models.attribute import (
@@ -20,12 +21,14 @@ class Embedder(nn.Module):
     has its own embedder to embed the value.
 
     Args:
-        types: list of node or edge types
-        encode_preexistence: to start each embedding with the existence bit
-        type_embedding_dim: size of the type embedding
-        attr_embedding_dim: size of the attribute embedding
-        categorical_attributes: dict of {"attribute_name": ["catergory_1", "category_2", ...]}
-        continuous_attributes: dict of {"attribute_name": (min_value, max_value)}
+        types (list): (node or edge) types. Order is important! Order should be the
+            oder that is used in the datalaoder to map nodes or edge type names to
+            integers in pytorch tensors.
+        encode_preexistence (bool): whether to start each embedding with the pre-existence bit
+        type_embedding_dim (int): size of the type embedding
+        attr_embedding_dim (int): size of the attribute embedding
+        categorical_attributes (dict): dict of {"attribute_name": ["catergory_1", "category_2", ...]}
+        continuous_attributes (dict): dict of {"attribute_name": (min_value, max_value)}
     """
     def __init__(
         self,
@@ -33,15 +36,10 @@ class Embedder(nn.Module):
         encode_preexistence: bool = True,
         type_embedding_dim: int = 0,
         attr_embedding_dim: int = 0,
-        categorical_attributes: Mapping = None,
-        continuous_attributes: Mapping = None,
+        categorical_attributes: Optional[Mapping[Hashable, Sequence]] = None,
+        continuous_attributes: Optional[Mapping[Hashable, Tuple[Number, Number]]] = None
     ):
         super(Embedder, self).__init__()
-
-        print("bla")
-        print(types)
-        print(categorical_attributes)
-        print(continuous_attributes)
 
         self.n_out_features = (
             bool(encode_preexistence) + type_embedding_dim + attr_embedding_dim
@@ -78,8 +76,30 @@ class Embedder(nn.Module):
 
 
 class TypewiseEncoder(nn.Module):
+    """
+    Encodes all values (categorical or continuous) into embedding_dim dimensions.
+    Each node or edge type gets its own
+    grakn_pytorch_geometric.embedding.attribute.Atribute which does
+    the actual encoding of individual values.
+    Types that are not mentioned categorical_attributes or continuous_attributes
+    are encoded with zero's of length embedding_dim to force all attributes to
+    be encoded by the same lenhth vector.
+
+    Args:
+        types (list): (node or edge) types. Order is important! Order should be the
+            oder that is used in the datalaoder to map nodes or edge type names to
+            integers in pytorch tensors.
+        embedding_dim (int): size of attribute embedding dim
+        categorical_attributes (dict): dict of {"attribute_name": ["catergory_1", "category_2", ...]}
+        continuous_attributes (dict): dict of {"attribute_name": (min_value, max_value)}
+    """
+
     def __init__(
-        self, types, embedding_dim, categorical_attributes, continuous_attributes
+        self,
+        types: Sequence,
+        embedding_dim: int,
+        categorical_attributes: Optional[Mapping[Hashable, Sequence]] = None,
+        continuous_attributes: Optional[Mapping[Hashable, Tuple[Number, Number]]] = None
     ):
         super(TypewiseEncoder, self).__init__()
         self._types = types

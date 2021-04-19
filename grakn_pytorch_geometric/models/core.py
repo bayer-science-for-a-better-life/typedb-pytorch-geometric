@@ -1,8 +1,9 @@
-from typing import Callable, Union
-
+from typing import Callable, Union, Sequence, Optional, Mapping, Hashable, Tuple
+from numbers import Number
 import torch
 from torch import Tensor
 import torch.nn as nn
+import torch_geometric
 from torch_geometric.typing import OptPairTensor, Adj, OptTensor, Size
 from torch_geometric.nn import MessagePassing
 from torch_geometric.nn.inits import reset
@@ -12,22 +13,36 @@ from grakn_pytorch_geometric.models.embedding import Embedder
 
 class KGCN(torch.nn.Module):
     """
-    Model like KGCN in tensorflow with graphnets.
-    Differences still to be resolved: loss only calculated
-    on predictions in last processing step. Maybe missing
+    Model like KGCN in tensorflow with graphnets. Maybe missing
     a few layer norms.
+
+    Args:
+        node_types (list): list of node type names. Order is important! Order should be the
+            oder that is used in the datalaoder to map nodes type names to
+            integers in pytorch tensors.
+        edge_types (list): list of edge type names. Order is important! Order should be the
+            oder that is used in the datalaoder to map edge type names to
+            integers in pytorch tensors.
+        categorical_attributes (dict): dict of {"attribute_name": ["catergory_1", "category_2", ...]}
+        continuous_attributes (dict): dict of {"attribute_name": (min_value, max_value)}
+        node_output_size (int): size of the output layer for the neural net predicting
+            node properties.
+        edge_output_size (int): size of the output layer for the neural net predicting
+            edge properties.
+        latent_size (int): size of
+        num_layers: number of layers in each of encoder, convolution blocks, and decoder.
     """
 
     def __init__(
         self,
-        node_types=None,
-        edge_types=None,
-        categorical_attributes=None,
-        continuous_attributes=None,
-        edge_output_size=3,
-        node_output_size=3,
-        latent_size=16,
-        num_layers=2,
+        node_types: Sequence = None,
+        edge_types: Sequence = None,
+        categorical_attributes: Optional[Mapping[Hashable, Sequence]] = None,
+        continuous_attributes: Optional[Mapping[Hashable, Tuple[Number, Number]]] = None,
+        node_output_size: int = 3,
+        edge_output_size: int = 3,
+        latent_size: int = 16,
+        num_layers: int = 2,
     ):
         super(KGCN, self).__init__()
 
@@ -74,7 +89,19 @@ class KGCN(torch.nn.Module):
         self.node_decoder = mlp([latent_size] * (num_layers + 1) + [node_output_size])
         self.edge_decoder = mlp([latent_size] * (num_layers + 1) + [edge_output_size])
 
-    def forward(self, data, steps=5, return_all_steps=False):
+    def forward(self, data: torch_geometric.data.batch.Batch, steps: int = 5, return_all_steps: bool = False) -> torch.Tensor:
+        """
+
+        Args:
+            data (torch_geometric.data.batch.Batch):
+            steps (int): number of times graph convolution block is applied.
+            return_all_steps (bool): if True, return not only the output
+                after all steps, but add a dimension holding the output
+                of every step.
+        Returns: torch.Tensor logits
+
+        """
+
         x_node, x_edge, edge_index, = (
             data.x,
             data.edge_attr,

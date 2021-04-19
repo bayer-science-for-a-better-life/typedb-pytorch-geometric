@@ -1,4 +1,4 @@
-from typing import Sequence, Callable
+from typing import Sequence, Callable, Optional
 import torch
 import networkx as nx
 import torch_geometric
@@ -40,7 +40,7 @@ class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
         database: str,
         uri: str = "localhost:1729",
         infer: bool = True,
-        networkx_transform: Callable[[nx.Graph], nx.Graph] = None,
+        networkx_transform: Optional[Callable[[nx.Graph], nx.Graph]] = None,
         caching: bool = False,
         *args,
         **kwargs

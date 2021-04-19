@@ -1,4 +1,5 @@
 import abc
+from typing import Optional
 import torch
 import torch.nn as nn
 
@@ -8,7 +9,7 @@ class Attribute(nn.Module, abc.ABC):
     Abstract base class for Attribute value embedding models
     """
 
-    def __init__(self, attr_embedding_dim: int, name=None):
+    def __init__(self, attr_embedding_dim: int, name: Optional[str] = None):
         super(Attribute, self).__init__()
         self._attr_embedding_dim = attr_embedding_dim
         self._type_name = name
@@ -30,7 +31,7 @@ class ContinuousAttribute(Attribute):
     Args:
         attr_embedding_dim (int): size of the embedding.
     """
-    def __init__(self, attr_embedding_dim: int, name=None):
+    def __init__(self, attr_embedding_dim: int, name: Optional[str] = None):
         super(ContinuousAttribute, self).__init__(attr_embedding_dim, name)
         # for now input is size 1 (when pytorch 1.8 comes out can be made dependent on input)
         # a three layer MLP is used like in KGCN. Three layers do maybe not make
@@ -48,7 +49,7 @@ class ContinuousAttribute(Attribute):
     def forward(self, attribute_value):
         # todo: tensorboard histogram here of continuous attributes
         embedding = self.embedder(attribute_value)
-        # todo: tensorboard histogram of continuous attibute embedding
+        # todo: tensorboard histogram of continuous attribute embedding
         return embedding
 
 
@@ -60,8 +61,7 @@ class CategoricalAttribute(Attribute):
         num_categories (int): number of values the attribute can take.
         attr_embedding_dim (int): size of the embedding.
     """
-    def __init__(self, num_categories: int, attr_embedding_dim: int, name=None):
-        # todo: add min max scaler? The min/max values are not used now.
+    def __init__(self, num_categories: int, attr_embedding_dim: int, name: Optional[str] = None):
         super(CategoricalAttribute, self).__init__(attr_embedding_dim, name)
         self.embedder = nn.Embedding(
             num_embeddings=num_categories, embedding_dim=attr_embedding_dim
@@ -83,7 +83,7 @@ class BlankAttribute(Attribute):
     Args:
         attr_embedding_dim (int): size of the embedding.
     """
-    def __init__(self, attr_embedding_dim: int, name=None):
+    def __init__(self, attr_embedding_dim: int, name: Optional[str] = None):
         super(BlankAttribute, self).__init__(attr_embedding_dim, name)
 
     def forward(self, attribute_value):
