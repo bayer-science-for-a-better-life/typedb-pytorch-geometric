@@ -1,4 +1,4 @@
-from typing import Sequence, Callable, Optional
+from typing import Sequence, Callable, Optional, Dict
 import torch
 import networkx as nx
 import torch_geometric
@@ -56,7 +56,7 @@ class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
         )
 
         self.caching = caching
-        self._cache = {}
+        self._cache: Dict[int, torch_geometric.data.Data] = {}
 
     def len(self):
         return len(self._networkx_dataset)

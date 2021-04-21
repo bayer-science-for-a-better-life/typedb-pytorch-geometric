@@ -1,4 +1,4 @@
-from typing import Callable, Union, Sequence, Optional, Mapping, Hashable, Tuple
+from typing import Callable, Union, Sequence, Optional, Mapping, Hashable, Tuple, Type
 from numbers import Number
 import torch
 from torch import Tensor
@@ -48,8 +48,6 @@ class KGCN(torch.nn.Module):
 
         node_types = node_types or []
         edge_types = edge_types or []
-        categorical_attributes = categorical_attributes or []
-        continuous_attributes = continuous_attributes or []
 
         node_embedder = Embedder(
             types=node_types,
@@ -89,7 +87,7 @@ class KGCN(torch.nn.Module):
         self.node_decoder = mlp([latent_size] * (num_layers + 1) + [node_output_size])
         self.edge_decoder = mlp([latent_size] * (num_layers + 1) + [edge_output_size])
 
-    def forward(self, data: torch_geometric.data.batch.Batch, steps: int = 5, return_all_steps: bool = False) -> torch.Tensor:
+    def forward(self, data: torch_geometric.data.batch.Batch, steps: int = 5, return_all_steps: bool = False) -> Tuple[Tensor, Tensor]:
         """
 
         Args:
@@ -260,7 +258,7 @@ class GraknConv(MessagePassing):
         edge_index: Adj,
         edge_attr: OptTensor = None,
         size: Size = None,
-    ) -> Tensor:
+    ) -> Tuple[Tensor, Tensor]:
 
         src, dst = edge_index
         edge_repr = torch.cat([x[src], edge_attr, x[dst]], dim=-1)
@@ -280,7 +278,19 @@ class GraknConv(MessagePassing):
         return torch.cat([x_j, edge_attr], dim=-1)
 
 
-def mlp(layer_sizes, activation=nn.ReLU, activate_final=False):
+def mlp(layer_sizes: Sequence[int], activation: Type[nn.Module] = nn.ReLU, activate_final: bool = False):
+    """
+    Simple utility function to create a multilayer perceptron.
+
+    Args:
+        layer_sizes list[int]: list with size of each layer.
+        activation torch.nn.Module: activation function class
+        activate_final (bool): whether to apply the activation function
+            to the last layer.
+
+    Returns: torch.nn.Module of the neural mlp.
+    """
+
     transformations = []
     for in_size, out_size in zip(layer_sizes, layer_sizes[1:]):
         transformations.append(nn.Linear(in_size, out_size))
