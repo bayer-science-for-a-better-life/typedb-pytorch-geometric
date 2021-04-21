@@ -2,7 +2,7 @@ from typing import Sequence, Callable, Optional, Dict
 import torch
 import networkx as nx
 import torch_geometric
-
+from grakn.client import GraknSession
 from kglib.kgcn_data_loader.dataset.grakn_networkx_dataset import GraknNetworkxDataSet
 
 
@@ -37,8 +37,9 @@ class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
         self,
         example_indices: Sequence,
         get_query_handles_for_id: Callable,
-        database: str,
-        uri: str = "localhost:1729",
+        database: Optional[str] = None,
+        uri: Optional[str] = "localhost:1729",
+        session: Optional[GraknSession] = None,
         infer: bool = True,
         networkx_transform: Optional[Callable[[nx.Graph], nx.Graph]] = None,
         caching: bool = False,
@@ -51,6 +52,7 @@ class GraknPytorchGeometricDataSet(torch_geometric.data.dataset.Dataset):
             get_query_handles_for_id=get_query_handles_for_id,
             database=database,
             uri=uri,
+            session=session,
             infer=infer,
             transform=networkx_transform,
         )
