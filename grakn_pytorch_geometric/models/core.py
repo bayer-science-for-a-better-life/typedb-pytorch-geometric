@@ -38,7 +38,9 @@ class KGCN(torch.nn.Module):
         node_types: Sequence = None,
         edge_types: Sequence = None,
         categorical_attributes: Optional[Mapping[Hashable, Sequence]] = None,
-        continuous_attributes: Optional[Mapping[Hashable, Tuple[Number, Number]]] = None,
+        continuous_attributes: Optional[
+            Mapping[Hashable, Tuple[Number, Number]]
+        ] = None,
         node_output_size: int = 3,
         edge_output_size: int = 3,
         latent_size: int = 16,
@@ -87,7 +89,12 @@ class KGCN(torch.nn.Module):
         self.node_decoder = mlp([latent_size] * (num_layers + 1) + [node_output_size])
         self.edge_decoder = mlp([latent_size] * (num_layers + 1) + [edge_output_size])
 
-    def forward(self, data: torch_geometric.data.batch.Batch, steps: int = 5, return_all_steps: bool = False) -> Tuple[Tensor, Tensor]:
+    def forward(
+        self,
+        data: torch_geometric.data.batch.Batch,
+        steps: int = 5,
+        return_all_steps: bool = False,
+    ) -> Tuple[Tensor, Tensor]:
         """
 
         Args:
@@ -278,7 +285,11 @@ class GraknConv(MessagePassing):
         return torch.cat([x_j, edge_attr], dim=-1)
 
 
-def mlp(layer_sizes: Sequence[int], activation: Type[nn.Module] = nn.ReLU, activate_final: bool = False):
+def mlp(
+    layer_sizes: Sequence[int],
+    activation: Type[nn.Module] = nn.ReLU,
+    activate_final: bool = False,
+):
     """
     Simple utility function to create a multilayer perceptron.
 

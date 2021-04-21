@@ -1,7 +1,10 @@
 from typing import Optional, Tuple, Union
 import torch
 
-def ignore_class(pred: torch.Tensor, target: torch.Tensor, ignore_index: Optional[int] = None) -> Tuple[torch.Tensor, torch.Tensor]:
+
+def ignore_class(
+    pred: torch.Tensor, target: torch.Tensor, ignore_index: Optional[int] = None
+) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Filter out samples from batch where the target is ignore_index.
 
@@ -19,7 +22,9 @@ def ignore_class(pred: torch.Tensor, target: torch.Tensor, ignore_index: Optiona
     return pred, target
 
 
-def correct(pred: torch.Tensor, target: torch.Tensor, ignore_index: Optional[int] = None) -> torch.BoolTensor:
+def correct(
+    pred: torch.Tensor, target: torch.Tensor, ignore_index: Optional[int] = None
+) -> torch.BoolTensor:
     """
     Get correctness of each prediction vs. target.
 
@@ -36,7 +41,9 @@ def correct(pred: torch.Tensor, target: torch.Tensor, ignore_index: Optional[int
     return predicted_index == target
 
 
-def existence_accuracy(pred: torch.Tensor, target: torch.Tensor, ignore_index: Optional[int] = None) -> torch.Tensor:
+def existence_accuracy(
+    pred: torch.Tensor, target: torch.Tensor, ignore_index: Optional[int] = None
+) -> torch.Tensor:
     """
     Accuracy.
 
@@ -52,7 +59,12 @@ def existence_accuracy(pred: torch.Tensor, target: torch.Tensor, ignore_index: O
     return correct(pred, target, ignore_index).float().mean()
 
 
-def fraction_solved(pred: torch.Tensor, target: torch.Tensor, batch: torch.LongTensor, ignore_index: Optional[int] = None) -> float:
+def fraction_solved(
+    pred: torch.Tensor,
+    target: torch.Tensor,
+    batch: torch.LongTensor,
+    ignore_index: Optional[int] = None,
+) -> float:
     """
     Fraction of graphs for which all nodes are
     classified correctly.
@@ -74,7 +86,13 @@ def fraction_solved(pred: torch.Tensor, target: torch.Tensor, batch: torch.LongT
     return n_solved / n_total
 
 
-def n_graphs_solved(pred: torch.Tensor, target: torch.Tensor, batch: torch.LongTensor, ignore_index: Optional[int] = None, return_n_total: bool = False) -> Union[int, Tuple[int, int]]:
+def n_graphs_solved(
+    pred: torch.Tensor,
+    target: torch.Tensor,
+    batch: torch.LongTensor,
+    ignore_index: Optional[int] = None,
+    return_n_total: bool = False,
+) -> Union[int, Tuple[int, int]]:
     """
     Number of graphs for which all nodes are
     classified correctly.

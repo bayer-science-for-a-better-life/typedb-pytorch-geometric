@@ -30,6 +30,7 @@ class Embedder(nn.Module):
         categorical_attributes (dict): dict of {"attribute_name": ["catergory_1", "category_2", ...]}
         continuous_attributes (dict): dict of {"attribute_name": (min_value, max_value)}
     """
+
     def __init__(
         self,
         types: Sequence,
@@ -37,7 +38,9 @@ class Embedder(nn.Module):
         type_embedding_dim: int = 0,
         attr_embedding_dim: int = 0,
         categorical_attributes: Optional[Mapping[Hashable, Sequence]] = None,
-        continuous_attributes: Optional[Mapping[Hashable, Tuple[Number, Number]]] = None
+        continuous_attributes: Optional[
+            Mapping[Hashable, Tuple[Number, Number]]
+        ] = None,
     ):
         super(Embedder, self).__init__()
 
@@ -99,7 +102,9 @@ class TypewiseEncoder(nn.Module):
         types: Sequence,
         embedding_dim: int,
         categorical_attributes: Optional[Mapping[Hashable, Sequence]] = None,
-        continuous_attributes: Optional[Mapping[Hashable, Tuple[Number, Number]]] = None
+        continuous_attributes: Optional[
+            Mapping[Hashable, Tuple[Number, Number]]
+        ] = None,
     ):
         super(TypewiseEncoder, self).__init__()
         self._types = types

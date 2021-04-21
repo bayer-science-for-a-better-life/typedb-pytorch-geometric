@@ -31,6 +31,7 @@ class ContinuousAttribute(Attribute):
     Args:
         attr_embedding_dim (int): size of the embedding.
     """
+
     def __init__(self, attr_embedding_dim: int, name: Optional[str] = None):
         super(ContinuousAttribute, self).__init__(attr_embedding_dim, name)
         # for now input is size 1 (when pytorch 1.8 comes out can be made dependent on input)
@@ -61,7 +62,10 @@ class CategoricalAttribute(Attribute):
         num_categories (int): number of values the attribute can take.
         attr_embedding_dim (int): size of the embedding.
     """
-    def __init__(self, num_categories: int, attr_embedding_dim: int, name: Optional[str] = None):
+
+    def __init__(
+        self, num_categories: int, attr_embedding_dim: int, name: Optional[str] = None
+    ):
         super(CategoricalAttribute, self).__init__(attr_embedding_dim, name)
         self.embedder = nn.Embedding(
             num_embeddings=num_categories, embedding_dim=attr_embedding_dim
@@ -83,6 +87,7 @@ class BlankAttribute(Attribute):
     Args:
         attr_embedding_dim (int): size of the embedding.
     """
+
     def __init__(self, attr_embedding_dim: int, name: Optional[str] = None):
         super(BlankAttribute, self).__init__(attr_embedding_dim, name)
 
