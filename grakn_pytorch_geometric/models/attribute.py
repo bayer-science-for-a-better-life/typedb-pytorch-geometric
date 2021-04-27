@@ -34,12 +34,12 @@ class ContinuousAttribute(Attribute):
 
     def __init__(self, attr_embedding_dim: int, name: Optional[str] = None):
         super(ContinuousAttribute, self).__init__(attr_embedding_dim, name)
-        # for now input is size 1 (when pytorch 1.8 comes out can be made dependent on input)
+        # Size of the input is determined after first time a batch is ran
+        # through the network.
         # a three layer MLP is used like in KGCN. Three layers do maybe not make
         # too much sense but keeping it like the tensorflow version for now.
-        # todo: when pytorch 1.8 comes out, change first Linear to LazyLinear
         self.embedder = nn.Sequential(
-            nn.Linear(1, attr_embedding_dim),
+            nn.LazyLinear(attr_embedding_dim),
             nn.ReLU(),
             nn.Linear(attr_embedding_dim, attr_embedding_dim),
             nn.ReLU(),
