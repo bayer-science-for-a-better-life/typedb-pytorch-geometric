@@ -1,7 +1,7 @@
-Grakn + Pytorch Geometric
-=========================
+TypeDB + Pytorch Geometric
+==========================
 
-Library for knowledge graph convolution with Grakn and Pytorch Geometric.
+Library for knowledge graph convolution with TypeDB and Pytorch Geometric.
 
 Basically trying to do what kglib does with tensorflow:
 

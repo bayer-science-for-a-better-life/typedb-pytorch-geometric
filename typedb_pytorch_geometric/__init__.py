@@ -3,7 +3,7 @@ __email__ = ["joren.retel@bayer.com"]
 
 
 try:
-    from grakn_pytorch_geometric._version import version as __version__
+    from typedb_pytorch_geometric._version import version as __version__
 except ImportError:
     # this protects against an edge case where a user tries to import
     # the module without installing it, by adding it manually to

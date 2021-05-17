@@ -1,10 +1,9 @@
 from typing import Any, Callable, Optional
 
 import torch
-from pytorch_lightning.metrics import Metric
-from pytorch_lightning.metrics.classification.helpers import (
-    _input_format_classification,
-)
+from torchmetrics import Metric
+from torchmetrics.utilities.checks import _input_format_classification
+from torchmetrics.classification.stat_scores import StatScores
 from .metrics import ignore_class, BatchSplitter
 
 

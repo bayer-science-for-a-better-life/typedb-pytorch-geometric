@@ -8,7 +8,7 @@ from torch_geometric.typing import OptPairTensor, Adj, OptTensor, Size
 from torch_geometric.nn import MessagePassing
 from torch_geometric.nn.inits import reset
 
-from grakn_pytorch_geometric.models.embedding import Embedder
+from typedb_pytorch_geometric.models.embedding import Embedder
 
 
 class KGCN(torch.nn.Module):

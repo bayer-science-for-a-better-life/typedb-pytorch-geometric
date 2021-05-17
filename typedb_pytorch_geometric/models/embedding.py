@@ -8,7 +8,7 @@ from typing import Optional, Tuple, Mapping, Sequence, Hashable
 from numbers import Number
 import torch
 import torch.nn as nn
-from grakn_pytorch_geometric.models.attribute import (
+from typedb_pytorch_geometric.models.attribute import (
     ContinuousAttribute,
     CategoricalAttribute,
     BlankAttribute,
@@ -82,7 +82,7 @@ class TypewiseEncoder(nn.Module):
     """
     Encodes all values (categorical or continuous) into embedding_dim dimensions.
     Each node or edge type gets its own
-    grakn_pytorch_geometric.embedding.attribute.Atribute which does
+    type_pytorch_geometric.embedding.attribute.Atribute which does
     the actual encoding of individual values.
     Types that are not mentioned categorical_attributes or continuous_attributes
     are encoded with zero's of length embedding_dim to force all attributes to
