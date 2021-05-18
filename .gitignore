@@ -120,4 +120,4 @@ venv.bak/
 .vscode/
 
 # setuptools_scm
-grakn_pytorch_geometric/_version.py
+typedb_pytorch_geometric/_version.py
