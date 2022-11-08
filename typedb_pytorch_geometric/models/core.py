@@ -281,7 +281,6 @@ class GraknConv(MessagePassing):
         return self.nn_node(out), edge_repr
 
     def message(self, x_j: Tensor, edge_attr: Tensor) -> Tensor:
-        concatenated = torch.cat([x_j, edge_attr], dim=-1)
         return torch.cat([x_j, edge_attr], dim=-1)
 
 
